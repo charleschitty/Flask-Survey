@@ -18,14 +18,30 @@ def index():
                             survey = survey.title,
                             survey_instructions = survey.instructions)
 
-@app.post('/begin')
-def get_survey():
+@app.post("/begin")
+def redirect_to_first_question():
+    """. . . """
+    # From the survey start, redirect from /begin to first question
+
+    return redirect("/question/0")
+
+@app.get('/question/<int:id>')
+def get_survey(id):
     """..."""
+    print("id", id)
 
-    questions = [question for question in survey.questions]
-    print(questions)
+    # We want to "stop" this eventually so set if length of responses = length of survey.questions
+    # Redirect to the thank you page and flash
 
-    return render_template("question.html", questions = questions)
+    # questions = [question for question in survey.questions]
+
+    z = survey.questions[id]
+
+    print(z.prompt)
+
+    return render_template("question.html", question = z.prompt)
+
+    # question.prompt is "Have you shopped here before?"
 
 
 #Questions: Why Post  vs. Get
