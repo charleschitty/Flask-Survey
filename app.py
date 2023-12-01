@@ -8,36 +8,54 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-responses = []
-
 @app.get("/")
-def index(): #survey_start() show_survey_start() might be better
+def survey_start():
     """Renders start of survey with survey name and instructions"""
 
+    session["responses"] = []
+
     return render_template("survey_start.html",
-                            survey=survey.title,
-                            survey_instructions=survey.instructions)
+                            survey=survey)
 
 @app.post("/begin")
 def redirect_to_first_question():
     """From the survey start, redirect from /begin to first survey question"""
 
-    responses.clear() # clears the responses everytime we start a new survey
+    session["responses"].clear()
 
     return redirect("/question/0")
 
-@app.get('/question/<int:id>') #change to something more specific like question_id
-def get_question(id):
-    """Renders the HTML for each survey question"""
-    print("id", id)
 
-    question = survey.questions[id]
+@app.get('/question/<int:question_id>')
+def get_question(question_id):
+    """Renders the HTML for each survey question"""
+
+    responses_length = len(session["responses"])
+
+    if responses_length == len(survey.questions):
+        return render_template(
+            "completion.html",
+            questions=survey.questions,
+            responses=session["responses"])
+
+    if question_id != responses_length:
+        flash(
+            f"""
+            Failed to access question {question_id}!
+            You are on question {responses_length}.
+            """
+        )
+        return redirect(f"/question/{len(session['responses'])}")
+
+    question = survey.questions[responses_length]
 
     return render_template(
         "question.html",
         question=question,
-        id=id
+        id=question_id
     )
+
+
 
 @app.post('/answer')
 def handle_question_submission():
@@ -49,19 +67,15 @@ def handle_question_submission():
     """
 
     answer = request.form["answer"]
+
+    responses = session["responses"]
     responses.append(answer)
+    session["responses"] = responses
 
-    id = int(request.form["id"])
-    new_id = id + 1
-
-    questions = survey.questions
-
-
-    print("responses", responses)
-
-    if new_id < len(survey.questions): # if length of responses = length of questions then cool! if not, redirect to correct q
-        return redirect(f"/question/{new_id}") #len(responses) instead of new_id
+    if len(session["responses"]) == len(survey.questions):
+        return render_template(
+            "completion.html",
+            questions=survey.questions,
+            responses=session["responses"])
     else:
-        return render_template("completion.html", # see line 36–39 and copy style
-                               questions=questions,
-                               responses=responses) #remove spaces between =
+        return redirect(f"/question/{len(session['responses'])}")

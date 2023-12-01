@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 
+
+  {% for msg in get_flashed_messages() %}
+    <p style="color:red"><b>{{ msg }}</b></p>
+  {% endfor %}
   <h1>{{ question.prompt }}</h1>
 
   <form action="/answer" method="POST">
@@ -17,7 +21,6 @@
       {% endfor %}
 
     <button>Continue</button>
-    <input type="hidden" name="id" value="{{ id }}"> 
   </form>
 
 {% endblock %}
