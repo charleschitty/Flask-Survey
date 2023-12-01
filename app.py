@@ -11,66 +11,57 @@ debug = DebugToolbarExtension(app)
 responses = []
 
 @app.get("/")
-def index():
-    """..."""
+def index(): #survey_start() show_survey_start() might be better
+    """Renders start of survey with survey name and instructions"""
 
     return render_template("survey_start.html",
-                            survey = survey.title,
-                            survey_instructions = survey.instructions)
+                            survey=survey.title,
+                            survey_instructions=survey.instructions)
 
 @app.post("/begin")
 def redirect_to_first_question():
-    """. . . """
-    # From the survey start, redirect from /begin to first question
+    """From the survey start, redirect from /begin to first survey question"""
+
+    responses.clear() # clears the responses everytime we start a new survey
 
     return redirect("/question/0")
 
-@app.get('/question/<int:id>')
-def get_survey(id):
-    """..."""
+@app.get('/question/<int:id>') #change to something more specific like question_id
+def get_question(id):
+    """Renders the HTML for each survey question"""
     print("id", id)
-
-    # We want to "stop" this eventually so set if length of responses = length of survey.questions
-    # Redirect to the thank you page and flash
 
     question = survey.questions[id]
 
-    return render_template("question.html", question = question, id = id)
+    return render_template(
+        "question.html",
+        question=question,
+        id=id
+    )
 
 @app.post('/answer')
-def redirect_to_next_question():
-    """..."""
+def handle_question_submission():
+    """
+    Checks to see if next question id is within the range of survey questions
+    If within range, redirects to next question
+    If outside range, ends survey and loads completion page with survey
+    question responses
+    """
 
     answer = request.form["answer"]
-    id = int(request.form["id"])
-    new_id = id + 1
     responses.append(answer)
 
+    id = int(request.form["id"])
+    new_id = id + 1
 
-    #(answer, value) dict
-    print(responses)
+    questions = survey.questions
 
-    if new_id < :
-        return redirect(f"/question/{new_id}")
+
+    print("responses", responses)
+
+    if new_id < len(survey.questions): # if length of responses = length of questions then cool! if not, redirect to correct q
+        return redirect(f"/question/{new_id}") #len(responses) instead of new_id
     else:
-        return redirect("completion.html", responses = responses)
-
-
-#Questions: Why Post  vs. Get
-
-
-# @app.post('/begin')
-# def post_survey():
-
-
-
-#responses --> empty list
-#keeps track of user's survey responses
-
-#user answers questions --> store answers responses list (currently empty)
-#ex: ['Yes', 'No', 'Less than $10,000', 'Yes']
-
-
-#Root Route
-#Render page that shows tilte of survey, instructions, and button to start survey
-#button redirects user to /questsions/0
+        return render_template("completion.html", # see line 36–39 and copy style
+                               questions=questions,
+                               responses=responses) #remove spaces between =

@@ -3,8 +3,17 @@
 {% block content %}
 
   <h1>Thanks for completing this survey!</h1>
-  {% for response in responses %}
+
+    <ul>
+      {% for question in questions %}
+          <li>
+          <b>{{ question.prompt}}</b>
+          {{ responses[loop.index0] }}
+          </li>
+      {% endfor %}
+    </ul>
     <p>{{ response }}</p>
-  {% endfor %}
+
 
 {% endblock %}
+
