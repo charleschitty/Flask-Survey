@@ -33,15 +33,27 @@ def get_survey(id):
     # We want to "stop" this eventually so set if length of responses = length of survey.questions
     # Redirect to the thank you page and flash
 
-    # questions = [question for question in survey.questions]
+    question = survey.questions[id]
 
-    z = survey.questions[id]
+    return render_template("question.html", question = question, id = id)
 
-    print(z.prompt)
+@app.post('/answer')
+def redirect_to_next_question():
+    """..."""
 
-    return render_template("question.html", question = z.prompt)
+    answer = request.form["answer"]
+    id = int(request.form["id"])
+    new_id = id + 1
+    responses.append(answer)
 
-    # question.prompt is "Have you shopped here before?"
+
+    #(answer, value) dict
+    print(responses)
+
+    if new_id < :
+        return redirect(f"/question/{new_id}")
+    else:
+        return redirect("completion.html", responses = responses)
 
 
 #Questions: Why Post  vs. Get

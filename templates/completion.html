@@ -3,5 +3,8 @@
 {% block content %}
 
   <h1>Thanks for completing this survey!</h1>
+  {% for response in responses %}
+    <p>{{ response }}</p>
+  {% endfor %}
 
 {% endblock %}
